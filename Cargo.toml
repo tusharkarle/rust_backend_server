@@ -1,0 +1,15 @@
+[package]
+name = "rust_sqlite_backend_server"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+sqlite =   { version = "0.30.0" , default_features = false }
+diesel = { version = "2.1.0", features = ["sqlite"] }
+dotenvy = "0.15.7"
+rocket = { version = "0.5.0-rc.2", features = ["json"] }
+tokio = { version = "1", features = ["full"] }
+percent-encoding = "2.3.0"
+sqlx = { version = "0.6", features = ["runtime-tokio-native-tls", "sqlite"] }
