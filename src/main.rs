@@ -18,19 +18,19 @@ async fn create(task: Json<TaskRequest>, pool: &State<Pool<Sqlite>>) -> DBResult
 }
 
 #[get("/tasks")]
-async fn index(pool: &State<Pool<Sqlite>>) -> DBResult<Json<Vec<Task>>> {
+async fn get_all(pool: &State<Pool<Sqlite>>) -> DBResult<Json<Vec<Task>>> {
     let tasks = get_tasks(pool).await?;
     Ok(Json(tasks))
 }
 
 #[get("/tasks/<id>")]
-async fn detail(id: i64, pool: &State<Pool<Sqlite>>) -> DBResult<Json<Task>> {
+async fn get_one(id: i64, pool: &State<Pool<Sqlite>>) -> DBResult<Json<Task>> {
     let task = get_task(pool, id).await?;
     Ok(Json(task))
 }
 
 #[patch("/tasks/<id>", format = "json", data = "<task>")]
-async fn update_data(
+async fn update(
     id: i64,
     task: Json<TaskRequest>,
     pool: &State<Pool<Sqlite>>,
@@ -44,7 +44,7 @@ async fn update_data(
 }
 
 #[delete("/tasks/<id>")]
-async fn delete_tasks(id: i64, pool: &State<Pool<Sqlite>>) -> DBResult<String, String> {
+async fn delete_one(id: i64, pool: &State<Pool<Sqlite>>) -> DBResult<String, String> {
     let response = delete_task(pool, id).await;
     if response.is_err() {
         return DBResult::Err("Internal Server Err".to_string());
@@ -62,10 +62,7 @@ async fn main() -> Result<(), rocket::Error> {
         .await
         .expect("Couldn't connect to sqlite database");
     let _rocket = rocket::build()
-        .mount(
-            "/",
-            routes![index, detail, create, delete_tasks, update_data],
-        )
+        .mount("/", routes![get_all, get_one, create, delete_one, update])
         .manage(pool)
         .launch()
         .await?;
